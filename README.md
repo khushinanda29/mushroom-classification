@@ -1,2 +1,12 @@
-# mushroom-classification
-Data mining project applying classification methods to predict whether mushrooms are edible or poisonous using the UCI Mushroom Dataset.
+# Mushroom Classification Project
+
+Team: Query Queens  
+Members: Khushi Nanda, Nataly Yau, Rose Joseph
+
+This project applies machine learning models to classify mushrooms as edible or poisonous using the UCI Mushroom Dataset.
+
+Week 1 Progress (Khushi):
+- Exploratory data analysis (EDA)
+- Missing value handling
+- Feature encoding
+- Train/test split
