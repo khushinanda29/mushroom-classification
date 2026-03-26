@@ -36,7 +36,7 @@ The dataset includes attributes describing mushroom characteristics such as cap 
 
 ---
 
-# Week 2 Progress – Model Implementation and Analysis
+# Week 2, 3, and 4 Progress – Decision Tree, Random Forest, and Naive Bayes Implementation and Analysis
 
 ### Decision Tree (Khushi Nanda)
 - Implemented Decision Tree using:
