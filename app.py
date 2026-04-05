@@ -1,14 +1,13 @@
 import streamlit as st
 import pickle
 import numpy as np
+import pandas as pd
 
-# Load models and encoders
+# --- LOAD MODEL ---
 dt = pickle.load(open('models/decision_tree.pkl', 'rb'))
-rf = pickle.load(open('models/random_forest.pkl', 'rb'))
-nb = pickle.load(open('models/naive_bayes.pkl', 'rb'))
 label_encoders = pickle.load(open('models/label_encoders.pkl', 'rb'))
 
-# Full label mappings
+# --- LABEL MAPS ---
 label_maps = {
     'class': {'e': 'edible', 'p': 'poisonous'},
     'cap-shape': {'b': 'bell', 'c': 'conical', 'f': 'flat', 'k': 'knobbed', 's': 'sunken', 'x': 'convex'},
@@ -26,7 +25,6 @@ label_maps = {
     'stalk-surface-below-ring': {'f': 'fibrous', 'k': 'silky', 's': 'smooth', 'y': 'scaly'},
     'stalk-color-above-ring': {'b': 'buff', 'c': 'cinnamon', 'e': 'red', 'g': 'gray', 'n': 'brown', 'o': 'orange', 'p': 'pink', 'w': 'white', 'y': 'yellow'},
     'stalk-color-below-ring': {'b': 'buff', 'c': 'cinnamon', 'e': 'red', 'g': 'gray', 'n': 'brown', 'o': 'orange', 'p': 'pink', 'w': 'white', 'y': 'yellow'},
-    'veil-type': {'p': 'partial', 'u': 'universal'},
     'veil-color': {'n': 'brown', 'o': 'orange', 'w': 'white', 'y': 'yellow'},
     'ring-number': {'n': 'none', 'o': 'one', 't': 'two'},
     'ring-type': {'e': 'evanescent', 'f': 'flaring', 'l': 'large', 'n': 'none', 'p': 'pendant'},
@@ -35,40 +33,127 @@ label_maps = {
     'habitat': {'d': 'woods', 'g': 'grasses', 'l': 'leaves', 'm': 'meadows', 'p': 'paths', 'u': 'urban', 'w': 'waste'}
 }
 
+# --- EXAMPLES ---
+edible_example = {
+    "cap-shape": "convex", "cap-surface": "smooth", "cap-color": "yellow",
+    "bruises": "yes", "odor": "almond", "gill-attachment": "free",
+    "gill-spacing": "close", "gill-size": "broad", "gill-color": "black",
+    "stalk-shape": "enlarging", "stalk-root": "club",
+    "stalk-surface-above-ring": "smooth", "stalk-surface-below-ring": "smooth",
+    "stalk-color-above-ring": "white", "stalk-color-below-ring": "white",
+    "veil-color": "white", "ring-number": "one", "ring-type": "pendant",
+    "spore-print-color": "brown", "population": "numerous", "habitat": "grasses"
+}
+
+poisonous_example = {
+    "cap-shape": "convex", "cap-surface": "smooth", "cap-color": "brown",
+    "bruises": "yes", "odor": "pungent", "gill-attachment": "free",
+    "gill-spacing": "close", "gill-size": "narrow", "gill-color": "black",
+    "stalk-shape": "enlarging", "stalk-root": "equal",
+    "stalk-surface-above-ring": "smooth", "stalk-surface-below-ring": "smooth",
+    "stalk-color-above-ring": "white", "stalk-color-below-ring": "white",
+    "veil-color": "white", "ring-number": "one", "ring-type": "pendant",
+    "spore-print-color": "black", "population": "scattered", "habitat": "urban"
+}
+
+# --- SESSION STATE ---
+if "example_type" not in st.session_state:
+    st.session_state.example_type = None
+
+# --- UI ---
 st.title("🍄 Mushroom Classification App")
-st.write("Select the mushroom characteristics below to predict whether it is edible or poisonous.")
 
-# Model selector
-model_choice = st.selectbox("Select Model", ["Decision Tree", "Random Forest", "Naive Bayes"])
+st.markdown("""
+**Model Used: Decision Tree**
 
-# Feature inputs
-st.subheader("Mushroom Features")
+We use a Decision Tree model because it achieves perfect performance while remaining simple and interpretable.
+""")
+
+st.info("Use example buttons or customize features to explore predictions.")
+
+# --- BUTTONS ---
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("🟢 Edible Example"):
+        st.session_state.example_type = "edible"
+
+with col2:
+    if st.button("🔴 Poisonous Example"):
+        st.session_state.example_type = "poisonous"
+
+with col3:
+    if st.button("🔄 Reset"):
+        st.session_state.example_type = None
+        st.rerun()
+
+st.markdown("---")
+
+# --- INPUTS ---
 user_input = {}
-for col, le in label_encoders.items():
-    if col in ["class", "veil-type"]:
-        continue
-    mapping = label_maps.get(col, {})
-    options = le.classes_
-    display_options = [mapping.get(o, o) for o in options]
-    selected = st.selectbox(f"{col}", display_options)
-    reverse_map = {v: k for k, v in mapping.items()}
-    user_input[col] = reverse_map.get(selected, selected)
 
-# Predict button
-if st.button("Predict"):
+current_example = (
+    edible_example if st.session_state.example_type == "edible"
+    else poisonous_example if st.session_state.example_type == "poisonous"
+    else {}
+)
+
+def render_section(title, cols):
+    st.markdown(f"### {title}")
+    for col in cols:
+        le = label_encoders[col]
+        mapping = label_maps.get(col, {})
+        options = le.classes_
+        display_options = [mapping.get(o, o) for o in options]
+
+        index = display_options.index(current_example[col]) if col in current_example else 0
+
+        selected = st.selectbox(col, display_options, index=index)
+
+        reverse_map = {v: k for k, v in mapping.items()}
+        user_input[col] = reverse_map.get(selected, selected)
+
+render_section("Cap Features", ["cap-shape", "cap-surface", "cap-color"])
+render_section("Odor & Bruises", ["odor", "bruises"])
+render_section("Gill Features", ["gill-attachment", "gill-spacing", "gill-size", "gill-color"])
+render_section("Stalk Features", [
+    "stalk-shape", "stalk-root",
+    "stalk-surface-above-ring", "stalk-surface-below-ring",
+    "stalk-color-above-ring", "stalk-color-below-ring"
+])
+render_section("Other Features", ["veil-color", "ring-number", "ring-type", "spore-print-color", "population", "habitat"])
+
+st.markdown("---")
+
+# --- PREDICT ---
+if st.button("🔍 Predict"):
     encoded = [label_encoders[col].transform([val])[0] for col, val in user_input.items()]
     input_array = np.array(encoded).reshape(1, -1)
 
-    if model_choice == "Decision Tree":
-        prediction = dt.predict(input_array)[0]
-    elif model_choice == "Random Forest":
-        prediction = rf.predict(input_array)[0]
-    else:
-        prediction = nb.predict(input_array)[0]
-
+    prediction = dt.predict(input_array)[0]
     result = label_encoders["class"].inverse_transform([prediction])[0]
 
+    st.markdown("---")
+
     if result == "p":
-        st.error("⚠️ This mushroom is POISONOUS!")
+        st.error("⚠️ **Result: POISONOUS**\n\nDo NOT consume this mushroom.")
     else:
-        st.success("✅ This mushroom is EDIBLE!")
+        st.success("✅ **Result: EDIBLE**\n\nThis mushroom is safe to consume.")
+
+    # --- FEATURE IMPORTANCE ---
+    st.markdown("### 🌳 Feature Importance")
+
+    feature_names = [
+        col for col in label_encoders.keys()
+        if col not in ["class", "veil-type"]
+    ]
+
+    importance_df = pd.DataFrame({
+        "Feature": feature_names,
+        "Importance": dt.feature_importances_
+    }).sort_values(by="Importance", ascending=False).head(10)
+
+    st.bar_chart(importance_df.set_index("Feature"))
+
+    top_feature = importance_df.iloc[0]["Feature"]
+    st.info(f"🔍 Most important feature: **{top_feature}**")

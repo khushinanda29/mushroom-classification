@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/rose/Documents/GSU/Spring 2026/CSC 4740 - Data Mining/Mushroom Classification/mushroom-classification/venv_app/bin/python3.11" "$0" "$@"
-' '''
+#!/Users/khushinanda/mushroom-classification/mushroom-classification/venv_app/bin/python
 import sys
 from numpy.f2py.f2py2e import main
 if __name__ == '__main__':
