@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
+from sklearn.tree import _tree
 
 # --- LOAD MODEL ---
 dt = pickle.load(open('models/decision_tree.pkl', 'rb'))
@@ -33,6 +34,12 @@ label_maps = {
     'habitat': {'d': 'woods', 'g': 'grasses', 'l': 'leaves', 'm': 'meadows', 'p': 'paths', 'u': 'urban', 'w': 'waste'}
 }
 
+# --- FEATURE ORDER (CRITICAL FIX) ---
+feature_names = [
+    col for col in label_encoders.keys()
+    if col not in ["class", "veil-type"]
+]
+
 # --- EXAMPLES ---
 edible_example = {
     "cap-shape": "convex", "cap-surface": "smooth", "cap-color": "yellow",
@@ -62,26 +69,16 @@ if "example_type" not in st.session_state:
 
 # --- UI ---
 st.title("🍄 Mushroom Classification App")
-
-st.markdown("""
-**Model Used: Decision Tree**
-
-We use a Decision Tree model because it achieves perfect performance while remaining simple and interpretable.
-""")
-
 st.info("Use example buttons or customize features to explore predictions.")
 
 # --- BUTTONS ---
 col1, col2, col3 = st.columns(3)
-
 with col1:
     if st.button("🟢 Edible Example"):
         st.session_state.example_type = "edible"
-
 with col2:
     if st.button("🔴 Poisonous Example"):
         st.session_state.example_type = "poisonous"
-
 with col3:
     if st.button("🔄 Reset"):
         st.session_state.example_type = None
@@ -103,11 +100,11 @@ def render_section(title, cols):
     for col in cols:
         le = label_encoders[col]
         mapping = label_maps.get(col, {})
+
         options = le.classes_
         display_options = [mapping.get(o, o) for o in options]
 
         index = display_options.index(current_example[col]) if col in current_example else 0
-
         selected = st.selectbox(col, display_options, index=index)
 
         reverse_map = {v: k for k, v in mapping.items()}
@@ -125,28 +122,70 @@ render_section("Other Features", ["veil-color", "ring-number", "ring-type", "spo
 
 st.markdown("---")
 
+# --- DECISION PATH ---
+def get_decision_path(tree, input_array):
+    tree_ = tree.tree_
+    node_indicator = tree.decision_path(input_array)
+    leaf_id = tree.apply(input_array)
+
+    path_text = []
+
+    for node_id in node_indicator.indices:
+        if leaf_id[0] == node_id:
+            values = tree_.value[node_id][0]
+            pred_idx = np.argmax(values)
+            pred_class = label_encoders["class"].inverse_transform([tree.classes_[pred_idx]])[0]
+            path_text.append(f"➡️ Reached leaf node {node_id} → Prediction: {pred_class.upper()}")
+            continue
+
+        feature_idx = tree_.feature[node_id]
+        feature = feature_names[feature_idx]
+        threshold = tree_.threshold[node_id]
+
+        value_encoded = int(input_array[0][feature_idx])
+
+        try:
+            letter = label_encoders[feature].inverse_transform([value_encoded])[0]
+        except:
+            letter = str(value_encoded)
+
+        value_readable = label_maps.get(feature, {}).get(letter, letter)
+
+        direction = "⬅️ left" if value_encoded <= threshold else "➡️ right"
+
+        path_text.append(
+            f"**{feature}** = `{value_readable}` → {direction} (threshold: {threshold:.2f})"
+        )
+
+    return path_text
+
 # --- PREDICT ---
 if st.button("🔍 Predict"):
-    encoded = [label_encoders[col].transform([val])[0] for col, val in user_input.items()]
+    encoded = [
+        label_encoders[col].transform([user_input[col]])[0]
+        for col in feature_names
+    ]
+
     input_array = np.array(encoded).reshape(1, -1)
 
     prediction = dt.predict(input_array)[0]
+    probs = dt.predict_proba(input_array)[0]
+    confidence = max(probs)
+
     result = label_encoders["class"].inverse_transform([prediction])[0]
 
     st.markdown("---")
 
     if result == "p":
-        st.error("⚠️ **Result: POISONOUS**\n\nDo NOT consume this mushroom.")
+        st.error("⚠️ **Result: POISONOUS**")
     else:
-        st.success("✅ **Result: EDIBLE**\n\nThis mushroom is safe to consume.")
+        st.success("✅ **Result: EDIBLE**")
+
+    st.markdown(f"📊 **Confidence: {confidence:.2%}**")
+    st.progress(int(confidence * 100))
 
     # --- FEATURE IMPORTANCE ---
     st.markdown("### 🌳 Feature Importance")
-
-    feature_names = [
-        col for col in label_encoders.keys()
-        if col not in ["class", "veil-type"]
-    ]
 
     importance_df = pd.DataFrame({
         "Feature": feature_names,
@@ -154,6 +193,13 @@ if st.button("🔍 Predict"):
     }).sort_values(by="Importance", ascending=False).head(10)
 
     st.bar_chart(importance_df.set_index("Feature"))
+
+    # --- DECISION PATH ---
+    st.markdown("### 🌿 Decision Path")
+
+    path = get_decision_path(dt, input_array)
+    for step in path:
+        st.write(step)
 
     top_feature = importance_df.iloc[0]["Feature"]
     st.info(f"🔍 Most important feature: **{top_feature}**")
