@@ -1,100 +1,167 @@
-# Mushroom Classification Project
+# Mushroom Classification – Machine Learning Project
 
-**Team:** Query Queens  
-**Members:** Khushi Nanda, Nataly Yau, Rose Joseph  
-
-This project applies machine learning techniques to classify mushrooms as **edible or poisonous** using the **UCI Mushroom Dataset**. The dataset contains 8,124 instances with 22 categorical features describing physical characteristics of mushrooms such as cap shape, gill color, odor, habitat, and stalk properties.
-
-The goal of this project is to compare different classification models and analyze how well they can distinguish between edible and poisonous mushrooms, as well as identify which features are most important for prediction.
+This project trains and evaluates machine learning models to classify mushrooms as edible or poisonous using the UCI Mushroom Dataset. Three classifiers are implemented and compared: Decision Tree, Random Forest, and Naive Bayes.
 
 ---
 
-# Dataset
+## System Requirements
 
-**Source:** UCI Machine Learning Repository – Mushroom Dataset  
-
-- Number of instances: **8,124**
-- Number of features: **22 categorical attributes**
-
-Each mushroom is labeled as:
-
-- **e** – edible  
-- **p** – poisonous  
-
-The dataset includes attributes describing mushroom characteristics such as cap shape, gill color, bruising behavior, stalk structure, ring number, spore print color, population, and habitat.
+- Python 3.11
+- pandas 2.0+
+- numpy 2.4.4
+- scikit-learn 1.8
+- matplotlib 3.10.8
+- seaborn 0.13.2
+- streamlit 1.56.0
 
 ---
 
-# Week 1 Progress – Data Understanding and Preprocessing (Khushi)
+## Project Structure
 
-- Loaded and explored the dataset  
-- Performed **exploratory data analysis (EDA)** on all categorical features  
-- Handled missing values in the **stalk-root** feature (`?`)  
-- Encoded categorical variables for modeling  
-- Performed **train/test split (80/20)** with stratification  
-- Created visualizations to understand feature distributions  
-
----
-
-# Week 2, 3, and 4 Progress – Decision Tree, Random Forest, and Naive Bayes Implementation and Analysis
-
-### Decision Tree (Khushi Nanda)
-- Implemented Decision Tree using:
-  - **Gini impurity**
-  - **Entropy (Information Gain)**
-- Achieved **perfect performance (Accuracy, Precision, Recall, F1 = 1.0)**
-- Generated confusion matrices showing **no misclassifications**
-- Analyzed tree structure:
-  - Depth = 7
-  - Leaves = 20
-- Conducted **overfitting analysis** using different `max_depth` values
-- Extracted and interpreted **top 10 important features**
-
-### Naive Bayes (Rose Joseph)
-- Achieved:
-  - Accuracy = 0.926  
-  - Precision = 0.919  
-  - Recall = 0.927  
-  - F1-score = 0.923  
-- Slightly lower performance due to **feature independence assumption**
-
-### Random Forest (Nataly Yau)
-- Achieved **perfect performance (all metrics = 1.0)**
-- Demonstrated strong ability to capture complex feature relationships
-- More stable due to ensemble learning
+mushroom-classification/
+├── Sources/
+│ └── data/
+│ ├── mushrooms.csv # Raw UCI Mushroom Dataset
+│ └── processed_mushrooms.csv # Generated after running EDA notebook
+├── models/
+│ ├── decision_tree.pkl # Generated after running model comparison notebook
+│ ├── random_forest.pkl
+│ ├── naive_bayes.pkl
+│ └── label_encoders.pkl
+├── results/
+│ └── random_forest_feature_importance.csv # Generated after running Random Forest notebook
+├── notebooks/
+│ ├── 01_eda.ipynb # EDA and preprocessing
+│ ├── 02_decision_tree.ipynb # Decision Tree classifier
+│ ├── 03_random_forest.ipynb # Random Forest classifier
+│ ├── 04_naive_bayes.ipynb # Naive Bayes classifier
+│ ├── 05_model_comparison.ipynb # Cross-model comparison
+│ └── 06_example_selection.ipynb # Extracting examples for the app
+├── app.py # Streamlit web application
+└── README.md
 
 ---
 
-# Model Comparison
+## Installation
 
-- **Decision Tree:** Perfect accuracy with strong interpretability  
-- **Random Forest:** Perfect accuracy with improved stability and generalization  
-- **Naive Bayes:** Slightly lower performance due to simplifying assumptions  
+1. Clone or download the project
 
-Tree-based models perform better because they can capture **relationships between features**, while Naive Bayes assumes independence.
+   git clone <repository-url>
+   cd project
 
----
+2. Install dependencies
 
-# Tools and Libraries
-
-- Python  
-- pandas  
-- numpy  
-- scikit-learn  
-- seaborn  
-- matplotlib  
-- streamlit   
+   pip install pandas numpy scikit-learn matplotlib seaborn streamlit
 
 ---
 
-# Next Steps
+## How to Run
 
-- Perform detailed **model comparison and evaluation**
-- Analyze **misclassifications**, especially false negatives  
-- Further explore **feature importance across models**
-- Build a **Streamlit application** for interactive prediction
-- Prepare final report and presentation
+Notebooks must be run in order, as each step depends on outputs from the previous one.
 
-# Demo (Planned)
+Step 1 – EDA and Preprocessing (01_eda.ipynb)
 
-A simple **Streamlit app** will be developed to allow users to input mushroom characteristics and receive a prediction indicating whether the mushroom is edible or poisonous based on the trained model.
+    This notebook must be run first. It loads the raw dataset, handles missing values,
+    encodes categorical features, and saves the processed dataset.
+
+    Run: jupyter notebook notebooks/01_eda.ipynb
+    Output: Sources/data/processed_mushrooms.csv
+
+Step 2 – Decision Tree (02_decision_tree.ipynb)
+
+    Trains Decision Tree classifiers using both Gini impurity and Entropy. Evaluates
+    performance, analyzes feature importance, and investigates overfitting with
+    different max depth values.
+
+    Run: jupyter notebook notebooks/02_decision_tree.ipynb
+    Input: Sources/data/processed_mushrooms.csv
+
+Step 3 – Random Forest (03_random_forest.ipynb)
+
+    Trains a Random Forest classifier with 100 trees. Evaluates performance, plots
+    feature importance, and compares accuracy across different numbers of estimators.
+
+    Run: jupyter notebook notebooks/03_random_forest.ipynb
+    Input: Sources/data/processed_mushrooms.csv
+    Output: results/random_forest_feature_importance.csv
+
+Step 4 – Naive Bayes (04_naive_bayes.ipynb)
+
+    Trains a Categorical Naive Bayes classifier. Evaluates performance metrics and
+    visualizes the most influential features based on learned log probabilities.
+
+    Run: jupyter notebook notebooks/04_naive_bayes.ipynb
+    Input: Sources/data/processed_mushrooms.csv
+
+Step 5 – Model Comparison (05_model_comparison.ipynb)
+
+    Loads all three models and compares accuracy, precision, recall, F1-score,
+    confusion matrices, and false negative counts side by side.
+
+    Run: jupyter notebook notebooks/05_model_comparison.ipynb
+    Input: Sources/data/processed_mushrooms.csv, Sources/data/mushrooms.csv
+    Output: models/decision_tree.pkl, models/random_forest.pkl,
+            models/naive_bayes.pkl, models/label_encoders.pkl
+
+Step 6 – Example Selection (06_example_selection.ipynb)
+
+    Extracts real edible and poisonous mushroom examples from the dataset, validates
+    them through the trained Decision Tree model, and converts them to human-readable
+    format for use in the Streamlit app.
+
+    Run: jupyter notebook notebooks/06_example_selection.ipynb
+    Input: Sources/data/mushrooms.csv, models/decision_tree.pkl, models/label_encoders.pkl
+
+Step 7 – Streamlit App (app.py)
+
+    The Streamlit app provides an interactive interface for classifying mushrooms.
+    It must be run after completing Steps 1–5, as it depends on the trained Decision
+    Tree model and label encoders saved in the models/ folder.
+
+    Features of the app:
+    - Select mushroom characteristics using dropdown menus grouped by category
+      (cap, odor, gill, stalk, and other features)
+    - Load a pre-validated edible or poisonous example with a single button click
+    - Reset all inputs back to default
+    - Click Predict to classify the mushroom as edible or poisonous
+    - View the model's confidence score as a percentage
+    - Explore the top 10 most important features used by the Decision Tree
+    - Trace the exact decision path the model took to reach its prediction
+
+    Requirements before running:
+    - models/decision_tree.pkl must exist (generated in Step 5)
+    - models/label_encoders.pkl must exist (generated in Step 5)
+
+    Run the app:
+
+        streamlit run app.py
+
+    The app will open automatically in your browser at http://localhost:8501
+
+---
+
+## Dataset
+
+The raw dataset (mushrooms.csv) is sourced from the UCI Machine Learning Repository
+(https://archive.ics.uci.edu/ml/datasets/mushroom). It contains 8,124 samples and
+22 categorical features describing physical characteristics of mushrooms such as cap
+shape, odor, gill color, and habitat. The target variable indicates whether a mushroom
+is edible (e) or poisonous (p).
+
+Note: The raw CSV does not include a header row. Column names are assigned manually
+during loading, as defined in the EDA notebook.
+
+---
+
+## Notes
+
+- The veil-type feature is dropped during preprocessing because it contains only one
+  unique value and provides no predictive information.
+- Missing values in stalk-root (represented as ?) are replaced with the category
+  label "missing".
+- All models use the same 80/20 stratified train/test split with random_state=42
+  for reproducibility.
+
+## Contributers
+
+Nataly Yau, Khushi Nanda, Rose Joseph
