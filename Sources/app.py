@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.tree import _tree
 
 # --- LOAD MODEL ---
-dt = pickle.load(open('models/decision_tree.pkl', 'rb'))
-label_encoders = pickle.load(open('models/label_encoders.pkl', 'rb'))
+dt = pickle.load(open('Sources/models/decision_tree.pkl', 'rb'))
+label_encoders = pickle.load(open('Sources/models/label_encoders.pkl', 'rb'))
 
 # --- LABEL MAPS ---
 label_maps = {
