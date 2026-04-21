@@ -19,27 +19,46 @@ This project trains and evaluates machine learning models to classify mushrooms 
 ## Project Structure
 
 ```
-sources/
-└── mushroom-classification/
+mushroom-classification/
+└── Sources/
     ├── data/
     │   ├── mushrooms.csv                            # Raw UCI Mushroom Dataset
     │   └── processed_mushrooms.csv                  # Generated after running EDA notebook
+    │
     ├── models/
     │   ├── decision_tree.pkl                        # Generated after running model comparison notebook
     │   ├── random_forest.pkl
     │   ├── naive_bayes.pkl
     │   └── label_encoders.pkl
+    │
     ├── notebooks/
-    │   ├── 01_eda.ipynb                             # EDA and preprocessing
-    │   ├── 02_decision_tree.ipynb                   # Decision Tree classifier
-    │   ├── 03_random_forest.ipynb                   # Random Forest classifier
-    │   ├── 04_naive_bayes.ipynb                     # Naive Bayes classifier
-    │   ├── 05_model_comparison.ipynb                # Cross-model comparison
-    │   └── 06_example_selection.ipynb               # Extracting examples for the app
+    │   ├── EDA.ipynb                                # EDA and preprocessing
+    │   ├── decision_tree.ipynb                      # Decision Tree classifier
+    │   ├── random_forest.ipynb                      # Random Forest classifier
+    │   ├── naive_bayes.ipynb                        # Naive Bayes classifier
+    │   ├── model_comparison.ipynb                   # Cross-model comparison
+    │   └── dt_example_selection.ipynb               # Extracting examples for the app
+    │
     ├── results/
-    │   └── random_forest_feature_importance.csv     # Generated after running Random Forest notebook
+    │   ├── class_distribution.png
+    │   ├── confusion_matrix_entropy.png
+    │   ├── confusion_matrix_gini.png
+    │   ├── confusion_matrix_naive_bayes.png
+    │   ├── confusion_matrix_random_forest.png
+    │   ├── decision_tree_visualization.png
+    │   ├── feature_correlation_heatmap.png
+    │   ├── habitat_vs_class.png
+    │   ├── model_performance_comparison.png
+    │   ├── odor_vs_class.png
+    │   ├── random_forest_feature_importance.csv     # Generated after running Random Forest notebook
+    │   └── Top_10_Features_Decision_Tree.png
+    │
+    ├── venv_app/                                    # Virtual environment used for running the project locally
+    │   └── ...
+    │
+    ├── .gitignore
     ├── app.py                                       # Streamlit web application
-    └── README.md
+    └── README.md                                    # Project instructions and setup guide
 ```
 
 ---
@@ -65,44 +84,44 @@ pip install pandas numpy scikit-learn matplotlib seaborn streamlit
 
 Notebooks must be run in order, as each step depends on outputs from the previous one.
 
-### Step 1 – EDA and Preprocessing (`01_eda.ipynb`)
+### Step 1 – EDA and Preprocessing (`EDA.ipynb`)
 
 This notebook must be run first. It loads the raw dataset, handles missing values, encodes categorical features, and saves the processed dataset.
 
-- **Input:** `data/raw/mushrooms.csv`
-- **Output:** `data/processed/processed_mushrooms.csv`
+- **Input:** `data/mushrooms.csv`
+- **Output:** `data/processed_mushrooms.csv`
 
-### Step 2 – Decision Tree (`02_decision_tree.ipynb`)
+### Step 2 – Decision Tree (`decision_tree.ipynb`)
 
 Trains Decision Tree classifiers using both Gini impurity and Entropy. Evaluates performance, analyzes feature importance, and investigates overfitting with different max depth values.
 
-- **Input:** `data/processed/processed_mushrooms.csv`
+- **Input:** `data/processed_mushrooms.csv`
 
-### Step 3 – Random Forest (`03_random_forest.ipynb`)
+### Step 3 – Random Forest (`random_forest.ipynb`)
 
 Trains a Random Forest classifier with 100 trees. Evaluates performance, plots feature importance, and compares accuracy across different numbers of estimators.
 
-- **Input:** `data/processed/processed_mushrooms.csv`
+- **Input:** `data/processed_mushrooms.csv`
 - **Output:** `results/random_forest_feature_importance.csv`
 
-### Step 4 – Naive Bayes (`04_naive_bayes.ipynb`)
+### Step 4 – Naive Bayes (`naive_bayes.ipynb`)
 
 Trains a Categorical Naive Bayes classifier. Evaluates performance metrics and visualizes the most influential features based on learned log probabilities.
 
-- **Input:** `data/processed/processed_mushrooms.csv`
+- **Input:** `data/processed_mushrooms.csv`
 
-### Step 5 – Model Comparison (`05_model_comparison.ipynb`)
+### Step 5 – Model Comparison (`model_comparison.ipynb`)
 
 Loads all three models and compares accuracy, precision, recall, F1-score, confusion matrices, and false negative counts side by side. Also saves all trained models.
 
-- **Input:** `data/processed/processed_mushrooms.csv`, `data/raw/mushrooms.csv`
+- **Input:** `data/processed_mushrooms.csv`, `data/mushrooms.csv`
 - **Output:** `models/decision_tree.pkl`, `models/random_forest.pkl`, `models/naive_bayes.pkl`, `models/label_encoders.pkl`
 
-### Step 6 – Example Selection (`06_example_selection.ipynb`)
+### Step 6 – Example Selection (`dt_example_selection.ipynb`)
 
 Extracts real edible and poisonous mushroom examples from the dataset, validates them through the trained Decision Tree model, and converts them to human-readable format for use in the Streamlit app.
 
-- **Input:** `data/raw/mushrooms.csv`, `models/decision_tree.pkl`, `models/label_encoders.pkl`
+- **Input:** `data/mushrooms.csv`, `models/decision_tree.pkl`, `models/label_encoders.pkl`
 
 ### Step 7 – Streamlit App (`app.py`)
 
