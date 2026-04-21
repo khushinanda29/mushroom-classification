@@ -22,10 +22,8 @@ This project trains and evaluates machine learning models to classify mushrooms 
 sources/
 └── mushroom-classification/
     ├── data/
-    │   ├── raw/
-    │   │   └── mushrooms.csv                        # Raw UCI Mushroom Dataset
-    │   └── processed/
-    │       └── processed_mushrooms.csv              # Generated after running EDA notebook
+    │   ├── mushrooms.csv                            # Raw UCI Mushroom Dataset
+    │   └── processed_mushrooms.csv                  # Generated after running EDA notebook
     ├── models/
     │   ├── decision_tree.pkl                        # Generated after running model comparison notebook
     │   ├── random_forest.pkl
