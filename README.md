@@ -7,7 +7,7 @@ This project trains and evaluates machine learning models to classify mushrooms 
 ## System Requirements
 
 - Python 3.11
-- pandas 2.0+
+- pandas 2.0
 - numpy 2.4.4
 - scikit-learn 1.8
 - matplotlib 3.10.8
